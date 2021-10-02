@@ -19,7 +19,6 @@ async def messages_handler(message: Message) -> str:
         answer += f"Дата поста: {getTime(post.date)}\n"
         answer += f"Количество лайков под постом: {post.likes.count}\n\n"
     answer += f"\nВсего обработано постов: {len(response.items)}"
-    await message.answer(answer)
     return answer
 
 

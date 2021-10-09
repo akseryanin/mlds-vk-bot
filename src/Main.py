@@ -55,7 +55,7 @@ async def messages_metrics_handler(message: Message) -> str:
 
 
 @bot.on.message()
-async def message_other_type(message: Message) -> str:
+async def message_other_type_handler(message: Message) -> str:
     resp = users_response[message.from_id]
     if resp.CountPosts is None:
         try:

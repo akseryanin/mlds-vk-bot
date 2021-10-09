@@ -22,8 +22,7 @@ def getTime(time):
     return str(datetime.utcfromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S'))
 
 def castTime(text):
-    d = datetime.strptime(text, '%d %m %Y')
-    return d
+    return datetime.strptime(text, '%d %m %Y')
 
 
 async def getStatistic(response) -> str:
@@ -35,7 +34,10 @@ async def getStatistic(response) -> str:
     dm = 0
     for i in range(1, len(metrics_values)):
         dm += metrics_values[i - 1] - metrics_values[i]
-    dm /= len(metrics_values) - 1
+    if len(metrics_values) <= 1:
+        dm = 0
+    else:
+        dm /= len(metrics_values) - 1
     response.Increment = dm
     response.IsDone = True
     return f"Всего постов в выборке: {len(data)}\n{response.Metric}: {metrics_values}\nПрирост (убыток): {dm}"

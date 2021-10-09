@@ -9,12 +9,12 @@ from enums.questions import Question
 from models.response import Response
 from boto.s3.connection import S3Connection
 
-s3 = S3Connection(os.environ['S3_KEY'], os.environ['S3_SECRET'])
-bucket = s3.create_bucket('bucket')
+#s3 = S3Connection(os.environ['S3_KEY'], os.environ['S3_SECRET'])
+#bucket = s3.create_bucket('bucket')
 
-API_TOKEN_USER = bucket.get('API_TOKEN_USER')
-API_TOKEN_BOT = bucket.get('API_TOKEN_BOT')
-domain = bucket.get('domain')
+API_TOKEN_USER = os.environ.get('API_TOKEN_USER')
+API_TOKEN_BOT = os.environ.get('API_TOKEN_BOT')
+domain = os.environ.get('domain')
 logging.info(API_TOKEN_BOT, API_TOKEN_USER, domain)
 
 api = API(token=API_TOKEN_USER)

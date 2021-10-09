@@ -1,5 +1,4 @@
 import os
-import logging
 from vkbottle.bot import Bot, Message
 from vkbottle import API
 from datetime import datetime
@@ -7,15 +6,10 @@ import random
 from enums.Metrics import Metric
 from enums.questions import Question
 from models.response import Response
-from boto.s3.connection import S3Connection
-
-#s3 = S3Connection(os.environ['S3_KEY'], os.environ['S3_SECRET'])
-#bucket = s3.create_bucket('bucket')
 
 API_TOKEN_USER = os.environ.get('API_TOKEN_USER')
 API_TOKEN_BOT = os.environ.get('API_TOKEN_BOT')
 domain = os.environ.get('domain')
-logging.info(API_TOKEN_BOT, API_TOKEN_USER, domain)
 
 api = API(token=API_TOKEN_USER)
 bot = Bot(token=API_TOKEN_BOT)

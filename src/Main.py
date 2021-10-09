@@ -1,15 +1,18 @@
+import os
 from vkbottle.bot import Bot, Message
 from vkbottle import API
 from datetime import datetime
 import random
-import secrets
-import time
 from enums.Metrics import Metric
 from enums.questions import Question
 from models.response import Response
 
-api = API(token=secrets.API_TOKEN_USER)
-bot = Bot(token=secrets.API_TOKEN_BOT)
+API_TOKEN_USER = os.environ.get('API_TOKEN_USER')
+API_TOKEN_BOT = os.environ.get('API_TOKEN_BOT')
+domain = os.environ.get('domain')
+
+api = API(token=API_TOKEN_USER)
+bot = Bot(token=API_TOKEN_BOT)
 
 current_users_requests = dict()
 users_response = dict()
@@ -24,7 +27,7 @@ def castTime(text):
 
 
 async def getStatistic(response) -> str:
-    data = (await api.wall.get(domain=secrets.domain, count=response.CountPosts)).items
+    data = (await api.wall.get(domain=domain, count=response.CountPosts)).items
     data = [x for x in data if not response.TimeFilterNeeded or
             response.DateTimeStart <= datetime.fromtimestamp(x.date) <= response.DateTimeEnd]
     metrics_values = [post.__getattribute__(response.Metric).count for post in data]
@@ -40,7 +43,7 @@ async def getStatistic(response) -> str:
 
 @bot.on.message(text="стат")
 async def messages_handler(message: Message) -> str:
-    response = await api.wall.get(domain=secrets.domain, count=10)
+    response = await api.wall.get(domain=domain, count=10)
     answer = ""
     for post in response.items:
         answer += f"Дата поста: {getTime(post.date)}\n"

@@ -21,6 +21,7 @@ users_response = dict()
 def getTime(time):
     return str(datetime.utcfromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S'))
 
+
 def castTime(text):
     return datetime.strptime(text, '%d %m %Y')
 
@@ -43,17 +44,6 @@ async def getStatistic(response) -> str:
     return f"Всего постов в выборке: {len(data)}\n{response.Metric}: {metrics_values}\nПрирост (убыток): {dm}"
 
 
-@bot.on.message(text="стат")
-async def messages_handler(message: Message) -> str:
-    response = await api.wall.get(domain=domain, count=10)
-    answer = ""
-    for post in response.items:
-        answer += f"Дата поста: {getTime(post.date)}\n"
-        answer += f"Количество лайков под постом: {post.likes.count}\n\n"
-    answer += f"\nВсего обработано постов: {len(response.items)}"
-    return answer
-
-
 @bot.on.message(text=[Metric.Views.value, Metric.Likes.value,
                       Metric.Reposts.value, Metric.Comments.value])
 async def messages_metrics_handler(message: Message) -> str:
@@ -66,7 +56,6 @@ async def messages_metrics_handler(message: Message) -> str:
 
 @bot.on.message()
 async def message_other_type(message: Message) -> str:
-
     resp = users_response[message.from_id]
     if resp.CountPosts is None:
         try:
@@ -91,6 +80,7 @@ async def message_other_type(message: Message) -> str:
         except:
             return Question.Error.value
         return await getStatistic(resp)
+    return Question.Error.value
 
 
 if __name__ == "__main__":

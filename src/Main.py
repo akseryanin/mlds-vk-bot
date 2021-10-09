@@ -49,13 +49,12 @@ async def messages_handler(message: Message) -> str:
     return answer
 
 
-@bot.on.message(text=["likes", "reposts", "comments"])
+@bot.on.message(text=[Metric.Views.value, Metric.Likes.value,
+                      Metric.Reposts.value, Metric.Comments.value])
 async def messages_metrics_handler(message: Message) -> str:
     resp = Response(random.randint(1, 1000000), message.from_id,
                     message.text, None, None, None, None,
                     None, None, None)
-    resp.UserId = message.from_id
-    resp.Metric = message.text
     users_response[message.from_id] = resp
     return Question.PostCount.value
 
@@ -76,10 +75,16 @@ async def message_other_type(message: Message) -> str:
             return Question.PostTimeBegin.value
         return await getStatistic(resp)
     if resp.DateTimeStart is None and resp.TimeFilterNeeded:
-        resp.DateTimeStart = castTime(message.text)
+        try:
+            resp.DateTimeStart = castTime(message.text)
+        except:
+            return Question.Error.value
         return Question.PostTimeEnd.value
     if resp.DateTimeEnd is None and resp.TimeFilterNeeded:
-        resp.DateTimeEnd = castTime(message.text)
+        try:
+            resp.DateTimeEnd = castTime(message.text)
+        except:
+            return Question.Error.value
         return await getStatistic(resp)
 
 

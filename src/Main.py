@@ -1,4 +1,5 @@
 import os
+import logging
 from vkbottle.bot import Bot, Message
 from vkbottle import API
 from datetime import datetime
@@ -14,7 +15,7 @@ bucket = s3.create_bucket('bucket')
 API_TOKEN_USER = bucket.get('API_TOKEN_USER')
 API_TOKEN_BOT = bucket.get('API_TOKEN_BOT')
 domain = bucket.get('domain')
-print(API_TOKEN_BOT, API_TOKEN_USER, domain)
+logging.info(API_TOKEN_BOT, API_TOKEN_USER, domain)
 
 api = API(token=API_TOKEN_USER)
 bot = Bot(token=API_TOKEN_BOT)

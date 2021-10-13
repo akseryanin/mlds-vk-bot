@@ -23,7 +23,7 @@ def getTime(time):
 
 
 def castTime(text):
-    return datetime.strptime(text, '%d %m %Y')
+    return datetime.strptime(text, '%d.%m.%Y')
 
 
 async def getStatistic(response) -> str:

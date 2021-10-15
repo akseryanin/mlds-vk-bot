@@ -3,23 +3,21 @@ from vkbottle.bot import Bot, Message
 from vkbottle import API
 from datetime import datetime
 import random
+
+import secrets
 from enums.Metrics import Metric
 from enums.questions import Question
 from models.response import Response
 
-API_TOKEN_USER = os.environ.get('API_TOKEN_USER')
-API_TOKEN_BOT = os.environ.get('API_TOKEN_BOT')
-domain = os.environ.get('domain')
+API_TOKEN_USER = secrets.API_TOKEN_USER
+API_TOKEN_BOT = secrets.API_TOKEN_BOT
+domain = secrets.domain
 
 api = API(token=API_TOKEN_USER)
 bot = Bot(token=API_TOKEN_BOT)
 
 current_users_requests = dict()
 users_response = dict()
-
-
-def getTime(time):
-    return str(datetime.utcfromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S'))
 
 
 def castTime(text):
@@ -41,7 +39,7 @@ async def getStatistic(response) -> str:
         dm /= len(metrics_values) - 1
     response.Increment = dm
     response.IsDone = True
-    return f"Всего постов в выборке: {len(data)}\n{response.Metric}: {metrics_values}\nПрирост (убыток): {dm}"
+    return f"Всего постов в выборке: {len(data)}\n{response.Metric}: {metrics_values}\nПрирост (убыток): {dm:.{3}f}"
 
 
 @bot.on.message(text=[Metric.Views.value, Metric.Likes.value,

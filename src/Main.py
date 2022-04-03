@@ -5,7 +5,7 @@ from datetime import datetime
 import random
 
 import secrets
-from enums.Metrics import Metric
+from enums.metrics import Metric
 from enums.questions import Question
 from models.response import Response
 
@@ -24,12 +24,7 @@ def castTime(text):
     return datetime.strptime(text, '%d.%m.%Y')
 
 
-async def getStatistic(response) -> str:
-    data = (await api.wall.get(domain=domain, count=response.CountPosts)).items
-    data = [x for x in data if not response.TimeFilterNeeded or
-            response.DateTimeStart <= datetime.fromtimestamp(x.date) <= response.DateTimeEnd]
-    metrics_values = [post.__getattribute__(response.Metric).count for post in data]
-    response.MetricValue = metrics_values
+def calculateIncrement(metrics_values) -> float:
     dm = 0
     for i in range(1, len(metrics_values)):
         dm += metrics_values[i - 1] - metrics_values[i]
@@ -37,17 +32,31 @@ async def getStatistic(response) -> str:
         dm = 0
     else:
         dm /= len(metrics_values) - 1
-    response.Increment = dm
+    return dm
+
+
+def filterPostsIfNeeded(data, isNeed, left, right):
+    return [x for x in data if not isNeed or
+            left <= datetime.fromtimestamp(x.date) <= right]
+
+
+async def getStatisticByMetric(response) -> str:
+    data = filterPostsIfNeeded((await api.wall.get(domain=domain, count=response.CountPosts)).items,
+                               response.TimeFilterNeeded,
+                               response.DateTimeStart,
+                               response.DateTimeEnd)
+    metrics_values = [post.__getattribute__(response.Metric).count for post in data]
+    response.MetricValue = metrics_values
+    response.Increment = calculateIncrement(metrics_values)
     response.IsDone = True
-    return f"Всего постов в выборке: {len(data)}\n{response.Metric}: {metrics_values}\nПрирост (убыток): {dm:.{3}f}"
+    return f"Всего постов в выборке: {len(data)}\n{response.Metric}: {metrics_values}\nПрирост (убыток): {response.Increment:.{3}f} "
 
 
 @bot.on.message(text=[Metric.Views.value, Metric.Likes.value,
                       Metric.Reposts.value, Metric.Comments.value])
 async def messages_metrics_handler(message: Message) -> str:
-    resp = Response(random.randint(1, 1000000), message.from_id,
-                    message.text, None, None, None, None,
-                    None, None, None)
+    resp = Response(Id=random.randint(1, 1000000), UserId=message.from_id,
+                    Metric=message.text)
     users_response[message.from_id] = resp
     return Question.PostCount.value
 
@@ -65,7 +74,7 @@ async def message_other_type_handler(message: Message) -> str:
         resp.TimeFilterNeeded = message.text == "+"
         if resp.TimeFilterNeeded:
             return Question.PostTimeBegin.value
-        return await getStatistic(resp)
+        return await getStatisticByMetric(resp)
     if resp.DateTimeStart is None and resp.TimeFilterNeeded:
         try:
             resp.DateTimeStart = castTime(message.text)
@@ -77,7 +86,7 @@ async def message_other_type_handler(message: Message) -> str:
             resp.DateTimeEnd = castTime(message.text)
         except:
             return Question.Error.value
-        return await getStatistic(resp)
+        return await getStatisticByMetric(resp)
     return Question.Error.value
 
 
